@@ -1,10 +1,9 @@
-import { uuid } from 'uuidv4';
 import Transaction from '../models/Transaction';
 
 interface Balance {
   income: number;
   outcome: number;
-  total: 'income' | 'outcome';
+  total: number;
 }
 
 interface TransactionDTO {
@@ -25,7 +24,25 @@ class TransactionsRepository {
   }
 
   public getBalance(): Balance {
-    // TODO
+    const income = this.transactions.reduce((incomeValue, transaction) => {
+      return transaction.type === 'income'
+        ? incomeValue + transaction.value
+        : incomeValue;
+    }, 0);
+
+    const outcome = this.transactions.reduce((outcomeValue, transaction) => {
+      return transaction.type === 'outcome'
+        ? outcomeValue + transaction.value
+        : outcomeValue;
+    }, 0);
+
+    const balance = {
+      income,
+      outcome,
+      total: income - outcome,
+    };
+
+    return balance;
   }
 
   public create({ title, value, type }: TransactionDTO): Transaction {
